@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include "filemanagement.h"
 #include "settingdialog.h"
+#include "clientmanagement.h"
 
 namespace Ui {
 class MainWindow;
@@ -33,6 +34,7 @@ private:
     FileManagement *fileManagement;
     SettingDialog *settingDialog;
     QDirModel *fileModel;
+    ClientManagement *clientManagement;
 
 
 protected:

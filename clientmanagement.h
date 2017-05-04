@@ -3,10 +3,15 @@
 
 #include <QObject>
 #include <QList>
+#include <QJsonObject>
+#include <QHostAddress>
+#include <QQueue>
+#include <QHostInfo>
+#include <QMap>
 
 #include "client.h"
-
-
+#include "signalingparsemodule.h"
+#include "filemanagement.h"
 
 class ClientManagement : public QObject
 {
@@ -15,13 +20,29 @@ public:
     explicit ClientManagement(QObject *parent = 0);
 
 private:
-    QList<QString> tempServerIpList;
+    QQueue<QHostAddress> tempServerIpQueue;
+    QQueue<Client*> clientWaitForServerQueue;
 
-    QList<Client*> clientList;
+    void getLocalHostAddress();
+
+    QMap<QString,Client*> clientList;
+
+    SignalingParseModule *signalingParseModule;
+
+    FileManagement *fileManagement;
+
+    void notifyTempServer(QHostAddress serverIp,QHostAddress clientIp);
+
+    void allocServer(Client *client);
+
+    QHostAddress localHostAddr;
 
 signals:
 
 public slots:
+    void newClient(QHostAddress nc);
+    void newTempServer(QHostAddress nc);
+    void pushFile(QString clientIp);
 };
 
 #endif // CLIENTMANAGEMENT_H

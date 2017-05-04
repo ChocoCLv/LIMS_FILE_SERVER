@@ -26,21 +26,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    commmodule.cpp \
     clientmanagement.cpp \
     filemanagement.cpp \
     settingdialog.cpp \
     client.cpp \
-    filesendtask.cpp
+    filesendtask.cpp \
+    signalingparsemodule.cpp
 
 
 HEADERS  += mainwindow.h \
-    commmodule.h \
     clientmanagement.h \
     filemanagement.h \
     settingdialog.h \
     client.h \
-    filesendtask.h
+    filesendtask.h \
+    signalingparsemodule.h \
+    config.h
 
 
 

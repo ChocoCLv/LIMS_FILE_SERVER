@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 #include <QList>
 #include <QThreadPool>
+#include <QHostAddress>
 
 #include "filesendtask.h"
 
@@ -19,17 +20,17 @@ class Client : public QObject
     Q_OBJECT
 public:
     explicit Client(QObject *parent = 0);
-    void setClientIp(QString ip);
-    void setServerIp(QString ip);
+    void setClientIp(QHostAddress ip);
+    void setServerIp(QHostAddress ip);
     void setIsDistributeOver(bool isOver);
     void setFileList(QList<QString> list);
     void prepareDistribute();
+    QHostAddress getClientHostAddress();
 
 private:
     FileSendTask *fileSendTask;
-    QString clientIp;               //客户端的IP
-    quint8 clientPort;
-    QString serverIp;               //主服务器为客户端分配的临时服务器的IP
+    QHostAddress clientIp;               //客户端的IP
+    QHostAddress serverIp;               //主服务器为客户端分配的临时服务器的IP
     bool isDistributeOver;          //是否已经获取本次实验所需的资料
     QList<QString> fileList;
     int fileNum;                    //文件总数量

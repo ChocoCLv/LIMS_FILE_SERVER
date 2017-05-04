@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     fileManagement = FileManagement::getInstance();
     settingDialog = new SettingDialog(this);
+    clientManagement  =new ClientManagement;
     readSettings();
     initFileTreeView();
     updateFileTreeView();

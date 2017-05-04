@@ -22,6 +22,7 @@ public:
     QString getWorkDirectory();
     void setWorkDirectory(QString dir);
     void setSocket(int descriptionId);
+    QList<QString> getCurrentFileList();
 
 private:
     static FileManagement *fileManagement;

@@ -10,12 +10,12 @@ Client::Client(QObject *parent):QObject(parent)
     isDistributeOver = false;
 }
 
-void Client::setClientIp(QString ip)
+void Client::setClientIp(QHostAddress ip)
 {
     clientIp = ip;
 }
 
-void Client::setServerIp(QString ip)
+void Client::setServerIp(QHostAddress ip)
 {
     serverIp = ip;
 }
@@ -30,11 +30,15 @@ void Client::setFileList(QList<QString> list)
     fileList = list;
 }
 
+QHostAddress Client::getClientHostAddress()
+{
+    return clientIp;
+}
+
 void Client::prepareDistribute()
 {
     fileSendTask = new FileSendTask();
     fileSendTask->setClientIp(clientIp);
-    fileSendTask->setClientPort(clientPort);
     fileSendTask->setFileList(fileList);
     connect(fileSendTask->socket,SIGNAL(connected()),this,SLOT(startDistribute()));
     connect(fileSendTask->socket,SIGNAL(bytesWritten(qint64)),this,SLOT(updateSendProgress(quint64)));

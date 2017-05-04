@@ -7,6 +7,11 @@ FileManagement::FileManagement(QObject *parent) : QObject(parent)
 
 }
 
+QList<QString> FileManagement::getCurrentFileList()
+{
+    return currentFileList;
+}
+
 FileManagement* FileManagement::getInstance()
 {
     if(fileManagement == NULL){
