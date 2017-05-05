@@ -21,7 +21,8 @@ public:
     static FileManagement* getInstance();
     QString getWorkDirectory();
     void setWorkDirectory(QString dir);
-    void setSocket(int descriptionId);
+    void setCurrentFileList(QList<QString> fileList);
+    quint64 getTotalSize();
     QList<QString> getCurrentFileList();
 
 private:
@@ -30,10 +31,14 @@ private:
     QString workDir;
     QList<QString> currentFileList;
 
-    QFileInfoList fileList;
+    QList<QString> relativeFilePathList;
+    QFileInfoList fileInfoList;
     QFileInfoList getFileList(QString path);
     QString projectName;
+    quint64 totalSize;
 
+    //由fileinfolist生成各文件与工作目录的相对文件路径
+    void genFilePathList();
 signals:
     void workDirUpdated();
 

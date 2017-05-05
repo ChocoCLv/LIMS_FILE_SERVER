@@ -10,9 +10,14 @@
 #include <QModelIndex>
 #include <QJsonObject>
 #include <QJsonArray>
+
 #include "filemanagement.h"
 #include "settingdialog.h"
 #include "clientmanagement.h"
+#include "config.h"
+
+//测试用
+#include <QUdpSocket>
 
 namespace Ui {
 class MainWindow;
@@ -43,6 +48,7 @@ protected:
 private slots:
     void updateFileTreeView();
     void on_actionOptions_triggered();
+    void on_btnTest_clicked();
 };
 
 #endif // MAINWINDOW_H

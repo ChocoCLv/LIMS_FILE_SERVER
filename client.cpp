@@ -10,6 +10,11 @@ Client::Client(QObject *parent):QObject(parent)
     isDistributeOver = false;
 }
 
+void Client::setWorkDir(QString dir)
+{
+    workDir = dir;
+}
+
 void Client::setClientIp(QHostAddress ip)
 {
     clientIp = ip;
@@ -35,13 +40,19 @@ QHostAddress Client::getClientHostAddress()
     return clientIp;
 }
 
+void Client::setTotalSize(quint64 size)
+{
+    totalSize = size;
+}
+
 void Client::prepareDistribute()
 {
     fileSendTask = new FileSendTask();
     fileSendTask->setClientIp(clientIp);
     fileSendTask->setFileList(fileList);
+    fileSendTask->setWorkDir(workDir);
     connect(fileSendTask->socket,SIGNAL(connected()),this,SLOT(startDistribute()));
-    connect(fileSendTask->socket,SIGNAL(bytesWritten(qint64)),this,SLOT(updateSendProgress(quint64)));
+    connect(fileSendTask->socket,SIGNAL(bytesWritten(qint64)),this,SLOT(updateSendProgress(qint64)));
     connect(fileSendTask->signaling,SIGNAL(oneFileSendOver(quint64)),this,SLOT(oneFileDistributedOver(quint64)));
 }
 
@@ -50,7 +61,7 @@ void Client::startDistribute()
     QThreadPool::globalInstance()->start(fileSendTask);
 }
 
-void Client::updateSendProgress(quint64 numBytes)
+void Client::updateSendProgress(qint64 numBytes)
 {
     currentFileSize += numBytes;
     fileSendTask->updateSendProgress(numBytes);

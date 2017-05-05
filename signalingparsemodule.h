@@ -26,6 +26,7 @@ public:
 
 private:
     QUdpSocket *udpSocket;
+    QUdpSocket *clientSocket;//只处理推送文件到客户端的命令
 
     void processSignaling(QByteArray signaling,QHostAddress addr);
 
@@ -38,6 +39,7 @@ signals:
 
 public slots:
     void processPendingDatagrams();
+    void processSignalingAsClient();
 };
 
 #endif // SIGNALINGPARSEMODULE_H

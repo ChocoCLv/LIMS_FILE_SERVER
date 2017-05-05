@@ -9,8 +9,9 @@ MainWindow::MainWindow(QWidget *parent) :
     fileManagement = FileManagement::getInstance();
     settingDialog = new SettingDialog(this);
     clientManagement  =new ClientManagement;
-    readSettings();
     initFileTreeView();
+    readSettings();
+
     updateFileTreeView();
     connect(fileManagement,SIGNAL(workDirUpdated()),this,SLOT(updateFileTreeView()));
 }
@@ -36,7 +37,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    qDebug()<<"close event";
     writeSettings();
     event->accept();
 }
@@ -66,7 +66,16 @@ void MainWindow::updateFileTreeView()
     ui->fileTreeView->expand(index);
     ui->fileTreeView->scrollTo(index);
     ui->fileTreeView->resizeColumnToContents(0);
-
     ui->edtWorkDir->setText(fileManagement->getWorkDirectory());
 }
 
+
+void MainWindow::on_btnTest_clicked()
+{
+    QUdpSocket socket;
+    QJsonObject jo;
+    jo.insert("SIGNALING_TYPE","PUSH_FILE");
+    QJsonDocument jd;
+    jd.setObject(jo);
+    socket.writeDatagram(jd.toJson(),QHostAddress::LocalHost,SERVER_SIGNALING_PORT_UDP);
+}
