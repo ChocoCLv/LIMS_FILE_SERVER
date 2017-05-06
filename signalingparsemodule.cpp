@@ -89,10 +89,8 @@ void SignalingParseModule::detectClient()
     QJsonDocument jd;
     jo.insert("SIGNALING_TYPE","ARE_YOU_OK");
     jd.setObject(jo);
-    QByteArray datagram;
-    QDataStream out(&datagram,QIODevice::WriteOnly);
-    out<<jd.toJson();
-    udpSocket->writeDatagram(datagram,QHostAddress::Broadcast,CLIENT_SIGNALING_PORT_UDP);
+
+    udpSocket->writeDatagram(jd.toJson(),QHostAddress::Broadcast,CLIENT_SIGNALING_PORT_UDP);
     //udpSocket->writeDatagram(datagram,QHostAddress::LocalHost,CLIENT_SIGNALING_PORT_UDP);
 }
 

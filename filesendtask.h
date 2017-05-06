@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDebug>
+#include <QDir>
 #include <QDataStream>
 
 #include "config.h"

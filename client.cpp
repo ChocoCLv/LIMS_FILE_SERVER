@@ -51,9 +51,11 @@ void Client::prepareDistribute()
     fileSendTask->setClientIp(clientIp);
     fileSendTask->setFileList(fileList);
     fileSendTask->setWorkDir(workDir);
+
     connect(fileSendTask->socket,SIGNAL(connected()),this,SLOT(startDistribute()));
     connect(fileSendTask->socket,SIGNAL(bytesWritten(qint64)),this,SLOT(updateSendProgress(qint64)));
     connect(fileSendTask->signaling,SIGNAL(oneFileSendOver(quint64)),this,SLOT(oneFileDistributedOver(quint64)));
+    fileSendTask->connectToClient();
 }
 
 void Client::startDistribute()

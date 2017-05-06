@@ -15,7 +15,7 @@ FileSendTask::FileSendTask() : QRunnable()
 
 void FileSendTask::setWorkDir(QString dir)
 {
-    workDir = dir;
+    workDir = dir+QDir::separator();
 }
 
 void FileSendTask::setClientIp(QHostAddress ip)
@@ -80,7 +80,7 @@ void FileSendTask::connectToClient()
 
 void FileSendTask::openFileRead(QString rFilePath)
 {
-    QString aFilePath = workDir + rFilePath;
+    QString aFilePath = workDir +  rFilePath;
     currentSendFile = new QFile(aFilePath);
     QFileInfo fi = QFileInfo(aFilePath);
     quint64 nextFileSize = fi.size();
