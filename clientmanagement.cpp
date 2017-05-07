@@ -44,6 +44,7 @@ void ClientManagement::pushFile(QString clientIp)
     clientAddr.setAddress(clientIp);
     client->setClientIp(clientAddr);
     client->setFileList(fileManagement->getCurrentFileList());
+    client->setTotalSize(fileManagement->getTotalSize());
     client->setWorkDir(fileManagement->getWorkDirectory());
     client->prepareDistribute();
 }

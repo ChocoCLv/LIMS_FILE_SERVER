@@ -2,6 +2,7 @@
 #define FILESENDTASK_H
 
 #include <QRunnable>
+#include <QThread>
 #include <QTcpSocket>
 #include <QList>
 #include <QString>
@@ -30,9 +31,11 @@ public:
     void setClientIp(QHostAddress ip);
     void setFileList(QList<QString> list);
     void setWorkDir(QString dir);
-    void connectToClient();
-    void updateSendProgress(quint64 numBytes);
+
+    void updateSendProgress(qint64 numBytes);
     void setTotalSize(quint64 size);
+
+    void setConnectedTrue();
 
     //暴露给client
     //由于qrunnable不是qobject对象 不能使用connect
@@ -60,9 +63,14 @@ private:
     void openFileRead(QString rFilePath);
     void sendReady();
     QSemaphore sem;
+    QSemaphore isConnected;
+
+    void connectToClient();
+
 
 protected:
     void run();
+
 };
 
 #endif // FILESENDTASK_H

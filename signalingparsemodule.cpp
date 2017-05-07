@@ -7,7 +7,8 @@ SignalingParseModule::SignalingParseModule(QObject *parent) : QObject(parent)
     connect(udpSocket,SIGNAL(readyRead()),this,SLOT(processPendingDatagrams()));
 
     clientSocket = new QUdpSocket(this);
-    clientSocket->bind(CLIENT_SIGNALING_PORT_UDP);
+
+    clientSocket->bind(SERVER_AS_CLIENT_PORT_UDP);
     connect(clientSocket,SIGNAL(readyRead()),this,SLOT(processSignalingAsClient()));
 }
 
@@ -99,4 +100,5 @@ void SignalingParseModule::sendSignaling(QJsonObject s, QHostAddress dst)
     QJsonDocument jd;
     jd.setObject(s);
     udpSocket->writeDatagram(jd.toJson(),dst,CLIENT_SIGNALING_PORT_UDP);
+    udpSocket->writeDatagram(jd.toJson(),dst,SERVER_AS_CLIENT_PORT_UDP);
 }

@@ -51,6 +51,7 @@ void Client::prepareDistribute()
     fileSendTask->setClientIp(clientIp);
     fileSendTask->setFileList(fileList);
     fileSendTask->setWorkDir(workDir);
+    fileSendTask->setTotalSize(totalSize);
 
     connect(fileSendTask->socket,SIGNAL(connected()),this,SLOT(startDistribute()));
     connect(fileSendTask->socket,SIGNAL(bytesWritten(qint64)),this,SLOT(updateSendProgress(qint64)));
@@ -65,7 +66,7 @@ void Client::startDistribute()
 
 void Client::updateSendProgress(qint64 numBytes)
 {
-    currentFileSize += numBytes;
+    currentFileSizeDistributed += numBytes;
     fileSendTask->updateSendProgress(numBytes);
 }
 

@@ -15,7 +15,7 @@ FileSendTask::FileSendTask() : QRunnable()
 
 void FileSendTask::setWorkDir(QString dir)
 {
-    workDir = dir+QDir::separator();
+    workDir = dir+"/";
 }
 
 void FileSendTask::setClientIp(QHostAddress ip)
@@ -31,6 +31,8 @@ void FileSendTask::setFileList(QList<QString> list)
 
 void FileSendTask::run()
 {
+    socket = new QTcpSocket;
+    connectToClient();
     sem.release(1);
     sendReady();
     foreach (QString filePath, fileList) {
@@ -64,18 +66,24 @@ void FileSendTask::sendFile(QString filePath)
         //等待成功发送的信号
         sem.acquire(1);
         socket->write(sndBlock);
+        qDebug()<<QString("send file data,write %1 bytes").arg(sndBlock.size());
     }
 }
 
-void FileSendTask::updateSendProgress(quint64 numBytes)
+void FileSendTask::updateSendProgress(qint64 numBytes)
 {
     numBytesSend = numBytes;
     sem.release(1);
+    qDebug()<<QString("write %1 bytes successfully,release sem").arg(numBytes);
 }
 
 void FileSendTask::connectToClient()
 {
     socket->connectToHost(clientIp,FILE_PORT_TCP);
+}
+void FileSendTask::setConnectedTrue()
+{
+    isConnected.release(1);
 }
 
 void FileSendTask::openFileRead(QString rFilePath)
@@ -102,6 +110,8 @@ void FileSendTask::openFileRead(QString rFilePath)
 
     sem.acquire(1);
     socket->write(sndBlock);
+    qDebug()<<QString("start send file: %1").arg(rFilePath);
+    qDebug()<<QString("send file data write %1 bytes").arg(sndBlock.size());
 }
 
 
@@ -110,13 +120,14 @@ void FileSendTask::sendReady()
     sndBlock.clear();
     QDataStream out(&sndBlock,QIODevice::WriteOnly);
 
-    //发送文件与工作目录的相对文件路径
+
     out<<quint16(0)<<TASK_INFO<<fileNum<<totalSize;
     out.device()->seek(0);
     out<<quint16(sndBlock.size()-sizeof(quint16));
 
     sem.acquire(1);
     socket->write(sndBlock);
+    qDebug()<<QString("send taskinfo,write %1 bytes").arg(sndBlock.size());
 }
 
 
