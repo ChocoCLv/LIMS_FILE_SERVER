@@ -44,9 +44,9 @@ private:
     quint64 totalSize;
 
 signals:
+    void startTask();
 
 public slots:
-    void startDistribute();
     void updateSendProgress(qint64 numBytes);
     void oneFileDistributedOver(quint64 nextFileSize);
 };

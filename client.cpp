@@ -52,16 +52,13 @@ void Client::prepareDistribute()
     fileSendTask->setFileList(fileList);
     fileSendTask->setWorkDir(workDir);
     fileSendTask->setTotalSize(totalSize);
-
-    connect(fileSendTask->socket,SIGNAL(connected()),this,SLOT(startDistribute()));
-    connect(fileSendTask->socket,SIGNAL(bytesWritten(qint64)),this,SLOT(updateSendProgress(qint64)));
-    connect(fileSendTask->signaling,SIGNAL(oneFileSendOver(quint64)),this,SLOT(oneFileDistributedOver(quint64)));
-    fileSendTask->connectToClient();
-}
-
-void Client::startDistribute()
-{
-    QThreadPool::globalInstance()->start(fileSendTask);
+    QThread *sendThread = new QThread();
+    fileSendTask->moveToThread(sendThread);
+    connect(this,SIGNAL(startTask()),fileSendTask,SLOT(connectToClient()));
+    sendThread->start();
+    //fileSendTask->connectToClient();
+    emit startTask();
+    qDebug()<<"main thread:"<<QThread::currentThreadId();
 }
 
 void Client::updateSendProgress(qint64 numBytes)
