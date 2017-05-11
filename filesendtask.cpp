@@ -43,9 +43,10 @@ void FileSendTask::updateSendProgress(qint64 numBytes)
         filePath = fileList.at(fileDistributedNum);
         openFileRead(filePath);
         break;
-    case FILE_NAME:
+
     case FILE_DATA:
-        currentFileSizeDistributed += numBytes;
+        currentFileSizeDistributed += fileBlock.size();
+    case FILE_NAME:
         sendFileData();
     default:
         break;
@@ -54,6 +55,8 @@ void FileSendTask::updateSendProgress(qint64 numBytes)
 
 void FileSendTask::sendFileData()
 {
+    qDebug()<<QString("send file :%1,has send %2 bytes").
+              arg(currentSendFile->fileName()).arg(currentFileSizeDistributed);
     if(currentFileSizeDistributed >= currentFileSize){
         fileDistributedNum++;
         startSendNewFile();
@@ -68,7 +71,7 @@ void FileSendTask::sendFileData()
 
     socket->write(sndBlock);
     lastDataType = FILE_DATA;
-    qDebug()<<QString("send file data：%1").arg(sndBlock.size());
+
 }
 
 void FileSendTask::startSendNewFile()
@@ -113,6 +116,7 @@ void FileSendTask::openFileRead(QString rFilePath)
 
     socket->write(sndBlock);
     lastDataType = FILE_NAME;
+    qDebug()<<QString("send file :%1").arg(aFilePath);
 }
 
 void FileSendTask::sendTaskInfo()
