@@ -55,6 +55,11 @@ quint64 FileManagement::getTotalSize()
     return totalSize;
 }
 
+int FileManagement::getFileNum()
+{
+    return currentFileList.size();
+}
+
 QFileInfoList FileManagement::getFileList(QString path)
 {
     QDir dir(path);
@@ -79,7 +84,6 @@ void FileManagement::genFilePathList()
     for(;i!=fileInfoList.end();i++){
         QString absoluteFilePath = (*i).absoluteFilePath();
         QString relativeFilePath = dir.relativeFilePath(absoluteFilePath);
-        totalSize += (*i).size();
         relativeFilePathList.append(relativeFilePath);
     }
 }

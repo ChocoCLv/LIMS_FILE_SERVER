@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QList>
-#include <QThreadPool>
 #include <QHostAddress>
+
 
 #include "filesendtask.h"
 
@@ -21,34 +21,36 @@ class Client : public QObject
 public:
     explicit Client(QObject *parent = 0);
     void setClientIp(QHostAddress ip);
-    void setServerIp(QHostAddress ip);
-    void setIsDistributeOver(bool isOver);
-    void setFileList(QList<QString> list);
     void setWorkDir(QString dir);
-    void prepareDistribute();
-    void setTotalSize(quint64 size);
+    bool hasRestSendThread();
+    bool hasRestRecvThread();
+    void acquireSendThread();
+    void acquireRecvThread();
+    void releaseRecvThread();
+    void releaseSendThread();
+    void pushFile(QHostAddress dst,QString fileName);
     QHostAddress getClientHostAddress();
 
 private:
+    const static quint8 MAX_SEND_THREAD = 1;
+    const static quint8 MAX_RECV_THREAD = 1;
+    quint8 sendThreadUsed;
+    quint8 recvThreadUsed;
     QString workDir;
-    FileSendTask *fileSendTask;
-    QHostAddress clientIp;               //客户端的IP
-    QHostAddress serverIp;               //主服务器为客户端分配的临时服务器的IP
-    bool isDistributeOver;          //是否已经获取本次实验所需的资料
-    QList<QString> fileList;
+    QHostAddress clientIp;          //客户端的IP
     int fileNum;                    //文件总数量
     int fileDistributedNum;         //已经发送完成的文件数量
-    int currentFileSize;            //当前发送的文件总大小
-    int currentFileSizeDistributed; //当前文件已经发送的大小
 
-    quint64 totalSize;
+    QList<QString> currentFileList;
+    void prepareDistribute();
 
 signals:
-    void startTask();
+    void startTask(QThread*);
+    void taskOver();
 
 public slots:
-    void updateSendProgress(qint64 numBytes);
-    void oneFileDistributedOver(quint64 nextFileSize);
+    void releaseThreadResourse(FileSendTask* task);
+
 };
 
 #endif // CLIENTINFO_H

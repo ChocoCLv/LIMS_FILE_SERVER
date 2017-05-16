@@ -23,6 +23,7 @@ public:
     void setWorkDirectory(QString dir);
     void setCurrentFileList(QList<QString> fileList);
     quint64 getTotalSize();
+    int getFileNum();
     QList<QString> getCurrentFileList();
 
 private:

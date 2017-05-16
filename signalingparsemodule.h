@@ -10,6 +10,7 @@
 #include <QDataStream>
 
 #include "config.h"
+#include "filemanagement.h"
 
 /**
  * @brief The SignalingParseModule class
@@ -26,7 +27,7 @@ public:
 
 private:
     QUdpSocket *udpSocket;
-    QUdpSocket *clientSocket;//只处理推送文件到客户端的命令
+    QHostAddress serverAddr;
 
     void processSignaling(QByteArray signaling,QHostAddress addr);
 
@@ -34,12 +35,12 @@ private:
 
 signals:
     void clientFound(QHostAddress addr);
-    void tempServerJoin(QHostAddress addr);
-    void pushFile(QString clientIp);
+    void tempServerJoin(QHostAddress addr,QString fileName);
+    void pushFile(QString clientIp,QString fileName);
+    void releaseSendThread(QHostAddress addr);
 
 public slots:
     void processPendingDatagrams();
-    void processSignalingAsClient();
 };
 
 #endif // SIGNALINGPARSEMODULE_H

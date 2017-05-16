@@ -15,6 +15,7 @@
 #include "settingdialog.h"
 #include "clientmanagement.h"
 #include "config.h"
+#include "log.h"
 
 //测试用
 #include <QUdpSocket>
@@ -40,6 +41,7 @@ private:
     SettingDialog *settingDialog;
     QDirModel *fileModel;
     ClientManagement *clientManagement;
+    Log *log;
 
 
 protected:
@@ -49,6 +51,7 @@ private slots:
     void updateFileTreeView();
     void on_actionOptions_triggered();
     void on_btnTest_clicked();
+    void showLog(QString l);
 };
 
 #endif // MAINWINDOW_H

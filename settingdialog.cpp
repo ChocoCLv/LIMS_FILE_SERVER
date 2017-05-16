@@ -18,6 +18,7 @@ void SettingDialog::selectWorkDir()
 {
     dir = QFileDialog::getExistingDirectory(
                 NULL,tr("选择工作目录"),"",QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks);
+    dir = dir + '/';
     ui->edtWorkDir->setText(dir);
 }
 

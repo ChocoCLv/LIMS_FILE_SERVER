@@ -5,11 +5,6 @@ SignalingParseModule::SignalingParseModule(QObject *parent) : QObject(parent)
     udpSocket = new QUdpSocket(this);
     udpSocket->bind(SERVER_SIGNALING_PORT_UDP);
     connect(udpSocket,SIGNAL(readyRead()),this,SLOT(processPendingDatagrams()));
-
-    clientSocket = new QUdpSocket(this);
-
-    clientSocket->bind(SERVER_AS_CLIENT_PORT_UDP);
-    connect(clientSocket,SIGNAL(readyRead()),this,SLOT(processSignalingAsClient()));
 }
 
 SignalingParseModule::~SignalingParseModule()
@@ -31,34 +26,6 @@ void SignalingParseModule::processPendingDatagrams()
     }while(udpSocket->hasPendingDatagrams());
 }
 
-void SignalingParseModule::processSignalingAsClient()
-{
-    QByteArray datagram;
-    do{
-        QHostAddress clientAddr;
-        datagram.resize(clientSocket->pendingDatagramSize());
-        clientSocket->readDatagram(datagram.data(),datagram.size(),&clientAddr);
-        QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
-        QString utf8str = utf8codec->toUnicode(datagram);
-        datagram = utf8str.toStdString().data();
-        QJsonParseError jpe;
-        QJsonDocument jd = QJsonDocument::fromJson(datagram,&jpe);
-        QJsonObject jo;
-
-        if(jpe.error != QJsonParseError::NoError)
-        {
-            return;
-        }
-        jo = jd.object();
-
-        QString signalingType = jo.find("SIGNALING_TYPE").value().toString();
-        if(signalingType == "PUSH_FILE_TO_CLIENT"){
-            QString clientIp = jo.find("CLIENT_IP").value().toString();
-            emit pushFile(clientIp);
-        }
-    }while(clientSocket->hasPendingDatagrams());
-}
-
 void SignalingParseModule::processSignaling(QByteArray signaling, QHostAddress addr)
 {
     QJsonParseError jpe;
@@ -76,11 +43,11 @@ void SignalingParseModule::processSignaling(QByteArray signaling, QHostAddress a
         detectClient();
     }else if(signalingType == "I_AM_ALIVE"){
         emit clientFound(addr);
-    }else if(signalingType == "RECV_OVER"){
-        emit tempServerJoin(addr);
-    }else if(signalingType == "PUSH_FILE_TO_CLIENT"){
-        QString clientIp = jo.find("CLIENT_IP").value().toString();
-        emit pushFile(clientIp);
+    }else if(signalingType == "FILE_RECV_OVER"){
+        QString fileName = jo.find("FILE_NAME").value().toString();
+        emit tempServerJoin(addr,fileName);
+    }else if(signalingType == "FILE_SEND_OVER"){
+        emit releaseSendThread(addr);
     }
 }
 
@@ -89,10 +56,12 @@ void SignalingParseModule::detectClient()
     QJsonObject jo;
     QJsonDocument jd;
     jo.insert("SIGNALING_TYPE","ARE_YOU_OK");
+    jo.insert("FILE_NUM",FileManagement::getInstance()->getFileNum());
+    QVariant size = FileManagement::getInstance()->getTotalSize();
+    jo.insert("FILE_TOTAL_SIZE",size.toString());
     jd.setObject(jo);
 
     udpSocket->writeDatagram(jd.toJson(),QHostAddress::Broadcast,CLIENT_SIGNALING_PORT_UDP);
-    //udpSocket->writeDatagram(datagram,QHostAddress::LocalHost,CLIENT_SIGNALING_PORT_UDP);
 }
 
 void SignalingParseModule::sendSignaling(QJsonObject s, QHostAddress dst)
@@ -100,5 +69,4 @@ void SignalingParseModule::sendSignaling(QJsonObject s, QHostAddress dst)
     QJsonDocument jd;
     jd.setObject(s);
     udpSocket->writeDatagram(jd.toJson(),dst,CLIENT_SIGNALING_PORT_UDP);
-    udpSocket->writeDatagram(jd.toJson(),dst,SERVER_AS_CLIENT_PORT_UDP);
 }

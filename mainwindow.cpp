@@ -6,14 +6,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    log = Log::getInstance();
     fileManagement = FileManagement::getInstance();
     settingDialog = new SettingDialog(this);
-    clientManagement  =new ClientManagement;
+
     initFileTreeView();
     readSettings();
 
     updateFileTreeView();
     connect(fileManagement,SIGNAL(workDirUpdated()),this,SLOT(updateFileTreeView()));
+    connect(log,SIGNAL(logStr(QString)),this,SLOT(showLog(QString)));
+
+    clientManagement  =new ClientManagement;
+}
+
+void MainWindow::showLog(QString l)
+{
+    ui->edtLog->append(l);
 }
 
 void MainWindow::initFileTreeView()
