@@ -52,16 +52,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::writeSettings()
 {
-    QSettings settings("UESTC","LIMS FILE SERVER");
-    settings.setValue("geometry",this->saveGeometry());
-    settings.setValue("work directory",fileManagement->getWorkDirectory());
+    QSettings *settings = new QSettings("config.ini",QSettings::IniFormat);
+    settings->setValue("geometry",this->saveGeometry());
+    settings->setValue("work directory",fileManagement->getWorkDirectory());
+    delete settings;
 }
 
 void MainWindow::readSettings()
 {
-    QSettings settings("UESTC","LIMS FILE SERVER");
-    restoreGeometry(settings.value("geometry").toByteArray());
-    fileManagement->setWorkDirectory(settings.value("work directory").toString());
+    QSettings *settings = new QSettings("config.ini",QSettings::IniFormat);
+    restoreGeometry(settings->value("geometry").toByteArray());
+    fileManagement->setWorkDirectory(settings->value("work directory").toString());
+    delete settings;
 }
 
 void MainWindow::on_actionOptions_triggered()
@@ -86,5 +88,5 @@ void MainWindow::on_btnTest_clicked()
     jo.insert("SIGNALING_TYPE","PUSH_FILE");
     QJsonDocument jd;
     jd.setObject(jo);
-    socket.writeDatagram(jd.toJson(),QHostAddress::LocalHost,SERVER_SIGNALING_PORT_UDP);
+    socket.writeDatagram(jd.toJson(),clientManagement->getLocalHostAddress(),SERVER_SIGNALING_PORT_UDP);
 }

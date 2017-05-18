@@ -76,9 +76,7 @@ void Client::pushFile(QHostAddress dst, QString fileName)
 
 void Client::releaseThreadResourse(FileSendTask *task)
 {
-    QThread *t = task->getThread();
-    t->quit();
+    task->getThread()->quit();
     task->deleteLater();
-    t->deleteLater();
     emit taskOver();
 }

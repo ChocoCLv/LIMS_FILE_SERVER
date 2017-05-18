@@ -2,14 +2,20 @@
 
 SignalingParseModule::SignalingParseModule(QObject *parent) : QObject(parent)
 {
+    log = Log::getInstance();
     udpSocket = new QUdpSocket(this);
-    udpSocket->bind(SERVER_SIGNALING_PORT_UDP);
     connect(udpSocket,SIGNAL(readyRead()),this,SLOT(processPendingDatagrams()));
 }
 
 SignalingParseModule::~SignalingParseModule()
 {
     delete udpSocket;
+}
+
+void SignalingParseModule::setLocalAddr(QHostAddress local)
+{
+    localAddr = local;
+    udpSocket->bind(local,SERVER_SIGNALING_PORT_UDP,QUdpSocket::ShareAddress|QUdpSocket::ReuseAddressHint);
 }
 
 void SignalingParseModule::processPendingDatagrams()
@@ -60,7 +66,6 @@ void SignalingParseModule::detectClient()
     QVariant size = FileManagement::getInstance()->getTotalSize();
     jo.insert("FILE_TOTAL_SIZE",size.toString());
     jd.setObject(jo);
-
     udpSocket->writeDatagram(jd.toJson(),QHostAddress::Broadcast,CLIENT_SIGNALING_PORT_UDP);
 }
 

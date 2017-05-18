@@ -13,21 +13,25 @@
 #include "client.h"
 #include "signalingparsemodule.h"
 #include "filemanagement.h"
+#include "log.h"
 
 class ClientManagement : public QObject
 {
     Q_OBJECT
 public:
     explicit ClientManagement(QObject *parent = 0);
+    QHostAddress getLocalHostAddress();
 
 private:
-    void getLocalHostAddress();
+
 
     QMap<quint32,Client*> clientList;
 
     SignalingParseModule *signalingParseModule;
 
     FileManagement *fileManagement;
+
+    Log *log;
 
     void notifyTempServer(QHostAddress serverIp,QHostAddress clientIp,QString fileName);
 
@@ -40,6 +44,11 @@ private:
     QMap<QString,QList<Client*>* > clientFileMap;
 
     void initList();
+
+    //记录初始状态下  主服务器发送到第几个文件  优先发送从未发送过的文件
+    int currentSendFile;
+    //是否存在未发送过的文件
+    bool isExistUnSendFile;
 
 signals:
 

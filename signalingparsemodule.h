@@ -10,6 +10,7 @@
 #include <QDataStream>
 
 #include "config.h"
+#include "log.h"
 #include "filemanagement.h"
 
 /**
@@ -23,15 +24,18 @@ class SignalingParseModule : public QObject
 public:
     explicit SignalingParseModule(QObject *parent = 0);
     void sendSignaling(QJsonObject s,QHostAddress dst);
+    void setLocalAddr(QHostAddress local);
     ~SignalingParseModule();
 
 private:
     QUdpSocket *udpSocket;
-    QHostAddress serverAddr;
+    QHostAddress localAddr;
 
     void processSignaling(QByteArray signaling,QHostAddress addr);
 
     void detectClient();
+
+    Log *log;
 
 signals:
     void clientFound(QHostAddress addr);

@@ -25,6 +25,7 @@ void FileSendTask::setFileName(QString fn)
 
 void FileSendTask::startTask(QThread *t)
 {
+
     connectToClient();
     thread = t;
 }
@@ -41,8 +42,6 @@ void FileSendTask::updateSendProgress(qint64 numBytes)
 
 void FileSendTask::sendFileData()
 {
-    emit log->logStr(QString("send file:%1,file total size:%2,send size:%3").arg(sndFile->fileName()).
-                     arg(fileSize).arg(fileSizeDistributed));
     fileBlock = sndFile->read(SEND_BUFF_SIZE);
     if(fileBlock.size()==0){
         emit log->logStr(QString("file:%1 send complete").arg(sndFile->fileName()));
@@ -67,7 +66,6 @@ void FileSendTask::connectToClient()
     connect(socket,SIGNAL(connected()),this,SLOT(openFileRead()));
     connect(socket,SIGNAL(bytesWritten(qint64)),this,SLOT(updateSendProgress(qint64)));
     socket->connectToHost(clientIp,FILE_PORT_TCP);
-    emit log->logStr("attempt to connect");
 }
 
 void FileSendTask::openFileRead()
@@ -92,12 +90,14 @@ void FileSendTask::openFileRead()
     out<<quint16(sndBlock.size()-sizeof(quint16));
 
     socket->write(sndBlock);
-    emit log->logStr(QString("open file:%1").arg(sndFile->fileName()));
+    emit log->logStr(QString("send file:%1 to client %2").
+                     arg(sndFile->fileName()).arg(clientIp.toString()));
 }
 
 FileSendTask::~FileSendTask()
 {
     sndFile->deleteLater();
+    socket->close();
     socket->deleteLater();
 }
 
