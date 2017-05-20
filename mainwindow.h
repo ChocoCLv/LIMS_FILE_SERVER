@@ -10,6 +10,7 @@
 #include <QModelIndex>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QTime>
 
 #include "filemanagement.h"
 #include "settingdialog.h"

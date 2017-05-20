@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::showLog(QString l)
 {
-    ui->edtLog->append(l);
+    ui->edtLog->append(QTime::toString(Qt::DateFormat)+l);
 }
 
 void MainWindow::initFileTreeView()
