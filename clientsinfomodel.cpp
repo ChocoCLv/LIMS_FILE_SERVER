@@ -28,8 +28,14 @@ int ClientsInfoModel::columnCount(const QModelIndex &parent) const
 
 QVariant ClientsInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(role == Qt::DisplayRole)
-        return headerList.at(section);
+    if(role == Qt::DisplayRole){
+        if(orientation == Qt::Horizontal){
+            return headerList.at(section);
+        }else if(orientation == Qt::Vertical){
+            return section;
+        }
+    }
+
     return QVariant();
 }
 
