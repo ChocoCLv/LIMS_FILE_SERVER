@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     client.cpp \
     filesendtask.cpp \
     signalingparsemodule.cpp \
-    log.cpp
+    log.cpp \
+    clientsinfomodel.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS  += mainwindow.h \
     filesendtask.h \
     signalingparsemodule.h \
     config.h \
-    log.h
+    log.h \
+    clientsinfomodel.h
 
 
 

@@ -45,7 +45,7 @@ private:
     QThread *thread;
 
     quint64 fileSize;                //当前发送的文件总大小
-    quint64 fileSizeDistributed;     //当前文件已经发送的大小
+    quint64 sndSize;     //当前文件已经发送的大小
 
     void sendFileData();
 

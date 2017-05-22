@@ -16,13 +16,21 @@ MainWindow::MainWindow(QWidget *parent) :
     updateFileTreeView();
     connect(fileManagement,SIGNAL(workDirUpdated()),this,SLOT(updateFileTreeView()));
     connect(log,SIGNAL(logStr(QString)),this,SLOT(showLog(QString)));
+    connect(log,SIGNAL(logStr(quint8,QVariant)),this,SLOT(showLog(quint8,QVariant)));
+
 
     clientManagement  =new ClientManagement;
+
+    connect(clientManagement,SIGNAL(getNewClient(int)),this,SLOT(getNewClient(int)));
+    connect(clientManagement,SIGNAL(updateClientInfo(int)),this,SLOT(updateClientInfo(int)));
+
+    initClientInfoTable();
 }
 
 void MainWindow::showLog(QString l)
 {
-    ui->edtLog->append(QTime::toString(Qt::DateFormat)+l);
+    QTime time = QTime::currentTime();
+    ui->edtLog->append(time.toString(Qt::TextDate)+"  "+l);
 }
 
 void MainWindow::initFileTreeView()
@@ -37,6 +45,51 @@ void MainWindow::initFileTreeView()
 
     ui->edtWorkDir->setText(fileManagement->getWorkDirectory());
 }
+
+void MainWindow::initClientInfoTable()
+{
+    QStringList headerList;
+    headerList<<"client ip"<<"receiving"<<"src client"<<"sending"<<"dst ip";
+    clientModel.setHeaderList(headerList);
+    clientModel.setClientMap(clientManagement->getClientMap());
+    ui->tvClientTable->setModel(&clientModel);
+}
+void MainWindow::getNewClient(int index)
+{
+    clientModel.insertClient();
+    clientModel.updateData(index);
+}
+
+void MainWindow::updateClientInfo(int index)
+{
+    clientModel.updateData(index);
+}
+
+void MainWindow::showLog(quint8 logType, QVariant logContent)
+{
+    switch(logType)
+    {
+    case Log::FILE_NAME_SEND:
+        ui->edtFileName->setText(logContent.toString());
+        break;
+    case Log::FILE_SIZE_SEND:
+        ui->progressBar->setMaximum(logContent.toInt());
+        break;
+    case Log::SEND_SIZE:
+        ui->progressBar->setValue(logContent.toInt());
+        break;
+    case Log::DST_IP:
+        ui->edtDstIP->setText(logContent.toString());
+        break;
+    case Log::COMMON_LOG:
+        showLog(logContent.toString());
+        break;
+    default:
+        showLog(logContent.toString());
+        break;
+    }
+}
+
 
 MainWindow::~MainWindow()
 {
@@ -79,7 +132,6 @@ void MainWindow::updateFileTreeView()
     ui->fileTreeView->resizeColumnToContents(0);
     ui->edtWorkDir->setText(fileManagement->getWorkDirectory());
 }
-
 
 void MainWindow::on_btnTest_clicked()
 {

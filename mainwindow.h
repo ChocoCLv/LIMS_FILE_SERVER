@@ -11,15 +11,19 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QTime>
+#include <QVariant>
+#include <QStandardItemModel>
 
 #include "filemanagement.h"
 #include "settingdialog.h"
 #include "clientmanagement.h"
+#include "clientsinfomodel.h"
 #include "config.h"
 #include "log.h"
 
 //测试用
 #include <QUdpSocket>
+
 
 namespace Ui {
 class MainWindow;
@@ -38,9 +42,11 @@ private:
     void writeSettings();
     void readSettings();
     void initFileTreeView();
+    void initClientInfoTable();
     FileManagement *fileManagement;
     SettingDialog *settingDialog;
     QDirModel *fileModel;
+    ClientsInfoModel clientModel;
     ClientManagement *clientManagement;
     Log *log;
 
@@ -53,6 +59,9 @@ private slots:
     void on_actionOptions_triggered();
     void on_btnTest_clicked();
     void showLog(QString l);
+    void showLog(quint8 logType,QVariant logContent);
+    void getNewClient(int index);
+    void updateClientInfo(int index);
 };
 
 #endif // MAINWINDOW_H

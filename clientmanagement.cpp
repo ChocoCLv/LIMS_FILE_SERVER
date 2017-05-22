@@ -17,7 +17,7 @@ ClientManagement::ClientManagement(QObject *parent) : QObject(parent)
     localClient = new Client;
     localClient->setClientIp(localHostAddr);
     localClient->setWorkDir(fileManagement->getWorkDirectory());
-    clientList[localHostAddr.toIPv4Address()] = localClient;
+    clientMap[localHostAddr.toIPv4Address()] = localClient;
     connect(localClient,SIGNAL(taskOver()),this,SLOT(oneSendTaskOver()));
     connect(signalingParseModule,SIGNAL(releaseSendThread(QHostAddress)),
             this,SLOT(releaseSendThread(QHostAddress)));
@@ -29,13 +29,18 @@ ClientManagement::ClientManagement(QObject *parent) : QObject(parent)
 
 void ClientManagement::releaseSendThread(QHostAddress addr)
 {
-    Client *client = clientList[addr.toIPv4Address()];
+    Client *client = clientMap[addr.toIPv4Address()];
+    client->setSendingDstIP("----");
+    client->setFileNameSending("send complete!");
+    int clientIndex = clientMap.keys().indexOf(addr.toIPv4Address());
+    emit updateClientInfo(clientIndex);
     client->releaseSendThread();
     allocServer();
 }
 
 void ClientManagement::oneSendTaskOver()
 {
+    emit log->logStr("local client send over");
     localClient->releaseSendThread();
     allocServer();
 }
@@ -60,7 +65,7 @@ void ClientManagement::newClient(QHostAddress nc)
 {
     Client *client = new Client;
     client->setClientIp(nc);
-    clientList[nc.toIPv4Address()] = client;
+    clientMap[nc.toIPv4Address()] = client;
 
     emit log->logStr(QString("get client:%1").arg(nc.toString()));
 
@@ -70,6 +75,7 @@ void ClientManagement::newClient(QHostAddress nc)
         i.value()->append(client);
     }
     allocServer();
+    emit getNewClient(clientMap.size()-1);
 }
 
 void ClientManagement::allocServer()
@@ -88,8 +94,7 @@ void ClientManagement::allocServer()
         clientList = clientFileMap[fileName];
         if(clientList->at(0)->hasRestRecvThread()&&localClient->hasRestSendThread()){
             emit log->logStr("主服务器有可用发送线程");
-            notifyTempServer(localClient->getClientHostAddress(),
-                             clientList->at(0)->getClientHostAddress(),fileName);
+            notifyTempServer(localClient,clientList->at(0),fileName);
             clientList->at(0)->acquireRecvThread();
             localClient->acquireSendThread();
             clientList->removeAt(0);
@@ -128,7 +133,7 @@ void ClientManagement::allocServer()
                 server->acquireSendThread();
                 client->acquireRecvThread();
                 emit log->logStr("常规分配服务器");
-                notifyTempServer(server->getClientHostAddress(),client->getClientHostAddress(),fileName);
+                notifyTempServer(server,client,fileName);
                 clientList->removeAt(i);
                 size--;
             }else{
@@ -138,10 +143,21 @@ void ClientManagement::allocServer()
     }
 }
 
-void ClientManagement::notifyTempServer(QHostAddress serverIp, QHostAddress clientIp, QString fileName)
+void ClientManagement::notifyTempServer(Client* server, Client* client, QString fileName)
 {
+    QHostAddress serverIp = server->getClientHostAddress();
+    QHostAddress clientIp = client->getClientHostAddress();
+    server->setFileNameSending(fileName);
+    server->setSendingDstIP(clientIp.toString());
+    client->setFileNameReceiving(fileName);
+    client->setReceivingSrcIP(serverIp.toString());
+    int serverIndex = clientMap.keys().indexOf(serverIp.toIPv4Address());
+    int clientIndex = clientMap.keys().indexOf(clientIp.toIPv4Address());
+    emit updateClientInfo(clientIndex);
+    emit updateClientInfo(serverIndex);
 
     if(serverIp.toIPv4Address() == localHostAddr.toIPv4Address()){
+
         emit log->logStr(QString("local server %1 send file:%2 to client %3").
                          arg(serverIp.toString()).arg(fileName).arg(clientIp.toString()));
         localClient->pushFile(clientIp,fileName);
@@ -153,15 +169,20 @@ void ClientManagement::notifyTempServer(QHostAddress serverIp, QHostAddress clie
         signalingParseModule->sendSignaling(jo,serverIp);
         emit log->logStr(QString("server %1 send file:%2 to client %3").
                          arg(serverIp.toString()).arg(fileName).arg(clientIp.toString()));
+
     }
 }
 
 void ClientManagement::newTempServer(QHostAddress nc, QString fileName)
 {
-    Client *client = clientList[nc.toIPv4Address()];
+    Client *client = clientMap[nc.toIPv4Address()];
     serverFileMap[fileName]->append(client);
     emit log->logStr(QString("client:%1 recv file %2 over").arg(nc.toString()).arg(fileName));
     client->releaseRecvThread();
+    client->setFileNameReceiving("recv complete!");
+    client->setReceivingSrcIP("----");
+    int clientIndex = clientMap.keys().indexOf(nc.toIPv4Address());
+    emit updateClientInfo(clientIndex);
     allocServer();
 }
 
@@ -176,4 +197,9 @@ QHostAddress ClientManagement::getLocalHostAddress()
         }
     }
     return localHostAddr;
+}
+
+QMap<quint32, Client *> *ClientManagement::getClientMap()
+{
+    return &clientMap;
 }

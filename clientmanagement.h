@@ -22,10 +22,12 @@ public:
     explicit ClientManagement(QObject *parent = 0);
     QHostAddress getLocalHostAddress();
 
+    QMap<quint32, Client *>* getClientMap();
+
 private:
 
 
-    QMap<quint32,Client*> clientList;
+    QMap<quint32,Client*> clientMap;
 
     SignalingParseModule *signalingParseModule;
 
@@ -33,7 +35,7 @@ private:
 
     Log *log;
 
-    void notifyTempServer(QHostAddress serverIp,QHostAddress clientIp,QString fileName);
+    void notifyTempServer(Client* server,Client* client,QString fileName);
 
     void allocServer();
 
@@ -51,6 +53,8 @@ private:
     bool isExistUnSendFile;
 
 signals:
+    void getNewClient(int index);
+    void updateClientInfo(int index);
 
 public slots:
     void newClient(QHostAddress nc);

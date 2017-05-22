@@ -2,8 +2,6 @@
 
 Client::Client(QObject *parent):QObject(parent)
 {
-    fileNum = 0;
-    fileDistributedNum = 0;
     sendThreadUsed = 0;
     recvThreadUsed = 0;
 }
@@ -58,6 +56,46 @@ void Client::setClientIp(QHostAddress ip)
 QHostAddress Client::getClientHostAddress()
 {
     return clientIp;
+}
+
+QString Client::getFileNameSending() const
+{
+    return fileNameSending;
+}
+
+void Client::setFileNameSending(const QString &value)
+{
+    fileNameSending = value;
+}
+
+QString Client::getSendingDstIP() const
+{
+    return sendingDstIP;
+}
+
+void Client::setSendingDstIP(const QString &value)
+{
+    sendingDstIP = value;
+}
+
+QString Client::getFileNameReceiving() const
+{
+    return fileNameReceiving;
+}
+
+void Client::setFileNameReceiving(const QString &value)
+{
+    fileNameReceiving = value;
+}
+
+QString Client::getReceivingSrcIP() const
+{
+    return receivingSrcIP;
+}
+
+void Client::setReceivingSrcIP(const QString &value)
+{
+    receivingSrcIP = value;
 }
 
 void Client::pushFile(QHostAddress dst, QString fileName)
