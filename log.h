@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QString>
 #include <QVariant>
+#include <QTextStream>
+#include <QFile>
 
 class Log : public QObject
 {
@@ -17,9 +19,12 @@ public:
     static const quint8 SEND_FILE_COMPLETE = 9;
     static const quint8 DST_IP = 10;
 
+    void writeLog(QString l);
+
 private:
     static Log* log;
     explicit Log(QObject *parent = 0);
+    QFile *file;
     ~Log();
 
 signals:
