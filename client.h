@@ -19,6 +19,7 @@ class Client : public QObject
 {
     Q_OBJECT
 public:
+    int fileRecvedNum;
     explicit Client(QObject *parent = 0);
     void setClientIp(QHostAddress ip);
     void setWorkDir(QString dir);

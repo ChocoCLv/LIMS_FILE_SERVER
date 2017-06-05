@@ -23,7 +23,6 @@ public:
     QHostAddress getLocalHostAddress();
 
     QMap<quint32, Client *>* getClientMap();
-
 private:
 
 

@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(log,SIGNAL(logStr(QString)),this,SLOT(showLog(QString)));
     connect(log,SIGNAL(logStr(quint8,QVariant)),this,SLOT(showLog(quint8,QVariant)));
 
-
     clientManagement  =new ClientManagement;
 
     connect(clientManagement,SIGNAL(getNewClient(int)),this,SLOT(getNewClient(int)));

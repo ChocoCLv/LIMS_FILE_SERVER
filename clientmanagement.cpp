@@ -52,7 +52,7 @@ void ClientManagement::initList()
     for(i = l.begin();i!=l.end();i++)
     {
         QList<Client*>* serverList = new QList<Client*>;
-        //serverList->append(localClient);
+        serverList->append(localClient);
         //在服务器未将所有文件发送完一遍时，不能将其加入服务器列表
         //避免服务器重复发送同一个文件
         serverFileMap[(*i)] = serverList;
@@ -78,6 +78,14 @@ void ClientManagement::newClient(QHostAddress nc)
     emit getNewClient(clientMap.size()-1);
 }
 
+bool compareFileNum(const Client * c1, const Client * c2)
+{
+    if(c1->fileRecvedNum < c2->fileRecvedNum){
+        return true;
+    }
+    return false;
+}
+
 void ClientManagement::allocServer()
 {
     QList<QString> l = fileManagement->getCurrentFileList();
@@ -88,37 +96,15 @@ void ClientManagement::allocServer()
     Client* server;
     Client* client;
 
-    if(currentSendFile < l.size()){
-        emit log->logStr("还有未发送文件");
-        fileName = l.at(currentSendFile);
-        clientList = clientFileMap[fileName];
-        if(clientList->at(0)->hasRestRecvThread()&&localClient->hasRestSendThread()){
-            emit log->logStr("主服务器有可用发送线程");
-            notifyTempServer(localClient,clientList->at(0),fileName);
-            clientList->at(0)->acquireRecvThread();
-            localClient->acquireSendThread();
-            clientList->removeAt(0);
-            currentSendFile++;
-        }else{
-            emit log->logStr("主服务器无可用发送线程");
-        }
-    }else{
-        if(isExistUnSendFile){
-            emit log->logStr("无未发送文件 主服务器进入服务器列表");
-            //不存在未发送过的文件  主服务器与其他服务器地位相同  加入列表
-            for(i = l.begin();i!=l.end();i++){
-                serverFileMap[(*i)]->append(localClient);
-            }
-        }
-        isExistUnSendFile = false;
-    }
-
-
     for(i = l.begin();i!=l.end();i++)
     {
         fileName = (*i);
         clientList = clientFileMap[fileName];
         serverList = serverFileMap[fileName];
+
+        //按照文件数量排序
+        qSort(serverList->begin(),serverList->end(),compareFileNum);
+
         int size;
         if(clientList->size()<serverList->size()){
             size = clientList->size();
@@ -177,6 +163,7 @@ void ClientManagement::newTempServer(QHostAddress nc, QString fileName)
 {
     Client *client = clientMap[nc.toIPv4Address()];
     serverFileMap[fileName]->append(client);
+    client->fileRecvedNum++;
     emit log->logStr(QString("client:%1 recv file %2 over").arg(nc.toString()).arg(fileName));
     client->releaseRecvThread();
     client->setFileNameReceiving("recv complete!");

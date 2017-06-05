@@ -4,6 +4,7 @@ Client::Client(QObject *parent):QObject(parent)
 {
     sendThreadUsed = 0;
     recvThreadUsed = 0;
+    fileRecvedNum = 0;
 }
 
 void Client::acquireRecvThread()
